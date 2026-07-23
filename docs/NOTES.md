@@ -43,3 +43,13 @@
 6. **Datalink loss**: dichiarato dopo `COM_DL_LOSS_T` secondi senza HEARTBEAT da una GCS; azione = `NAV_DLL_ACT` (0 disabilitato di default!, 2 = Return). Verificato: stop heartbeat → dopo ~10 s AUTO.RTL → atterraggio → disarm.
 7. Il failsafe si osserva "da fuori" solo passivamente: un listener che NON manda heartbeat non resetta il timer del datalink — distinzione fondamentale tra ascoltare e essere una GCS.
 8. Il flight mode PX4 viaggia in `HEARTBEAT.custom_mode`: main mode nel byte 2, sub-mode nel byte 3 (AUTO=4, sub RTL=5, LAND=6).
+
+## M4 — Offboard control
+
+1. **OFFBOARD** è la modalità in cui un computer esterno (companion) comanda il volo via setpoint continui — il paradigma del controllo da ROS/MAVSDK.
+2. Regola d'oro: PX4 accetta il passaggio a OFFBOARD **solo se un flusso di setpoint è già attivo** (>2 Hz); per questo si manda un setpoint prima di `offboard.start()`.
+3. Ogni setpoint è un **SET_POSITION_TARGET_LOCAL_NED** con `type_mask` che dice quali campi valgono (posizione, velocità, accelerazione, yaw) — qui velocità+yaw.
+4. Frame **NED locale**: origine al punto di arming, z positiva verso il basso; `vd=0` mantiene la quota, il cerchio è solo la rotazione continua del vettore (vn, ve).
+5. Se il flusso di setpoint si interrompe scatta l'**offboard-loss failsafe** (`COM_OF_LOSS_T`, azione `COM_OBL_RC_ACT`) — stessa filosofia del datalink loss di M3.
+6. Traiettorie "a velocità": semplici e robuste ma in anello aperto sulla posizione — la deriva si accumula (il quadrato non si richiude perfettamente). Per M5 la correzione arriverà in anello chiuso dalla visione.
+7. Lo yaw è comandabile indipendentemente dalla direzione di volo (nose sul tangente nel cerchio) — un quadricottero è olonomo nel piano.
