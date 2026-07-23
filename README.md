@@ -30,7 +30,7 @@ control, and — as the capstone — **vision-based precision landing on an ArUc
 | # | Milestone | Status |
 |---|-----------|--------|
 | M1 | Telemetry logger (MAVSDK → CSV) | ✅ done |
-| M2 | Arm / takeoff / hold / land with error handling | ⏳ planned |
+| M2 | Arm / takeoff / hold / land with error handling | ✅ done |
 | M3 | Waypoint mission + failsafe testing (battery low, datalink loss) | ⏳ planned |
 | M4 | Offboard control: velocity-setpoint square & circle | ⏳ planned |
 | M5 | **Precision landing on ArUco marker** (OpenCV + offboard descent) | ⏳ planned |

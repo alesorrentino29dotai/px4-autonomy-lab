@@ -23,3 +23,12 @@
 6. Pattern robusto per logging: task per-stream aggiornano uno snapshot condiviso, un sampler a clock fisso scrive righe rettangolari su CSV (rate diversi → niente buchi).
 7. `SYS_STATUS` porta battery e sensor-health bitmask; MAVSDK la espone come `telemetry.health()` (gps_ok, home_ok, armable).
 8. Il flight mode viaggia dentro **HEARTBEAT** (`custom_mode`, encoding specifico PX4): non esiste un "messaggio flight mode" dedicato.
+
+## M2 — Arm / Takeoff / Land
+
+1. Ogni comando (arm, takeoff, land) è un **COMMAND_LONG** MAVLink; l'esito torna in **COMMAND_ACK** (ACCEPTED / DENIED / TEMPORARILY_REJECTED) che MAVSDK traduce in `ActionError`.
+2. Un arm rifiutato = un **health & arming check** del commander fallito; il motivo viaggia come STATUSTEXT (visibile in QGC o pxh>), non nell'ACK — l'ACK dice solo "DENIED".
+3. `MAV_CMD_NAV_TAKEOFF` sale alla quota di takeoff (MAVSDK: `set_takeoff_altitude`, parametro PX4 `MIS_TAKEOFF_ALT`); il completamento va monitorato via telemetria, il comando non "blocca".
+4. Lo stato aria/terra viene da **EXTENDED_SYS_STATE** (`MAV_LANDED_STATE`): è così che si sa quando il touchdown è avvenuto davvero.
+5. Dopo il land PX4 **disarma automaticamente** (COM_DISARM_LAND, default ~2s a terra) — aspettare `armed == False` è il segnale di fine volo affidabile.
+6. Pattern: comandi fire-and-forget + attese basate su telemetria con `asyncio.wait_for` e timeout espliciti — mai fidarsi solo dell'ACK.
