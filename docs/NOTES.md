@@ -72,3 +72,14 @@
 3. Python è async-first (await/generatori), il C++ offre chiamate bloccanti + subscription a callback: stesso protocollo MAVLink sotto, diversa ergonomia.
 4. `telemetry.health_all_ok()` riassume in una chiamata il gate EKF che in Python richiedeva l'iterazione dello stream health.
 5. Gli enum result (`Action::Result`) stampabili con operator<< danno diagnostica arm/takeoff equivalente agli `ActionError` Python.
+
+## M7 — Isaac ROS su Gazebo (percezione GPU) — appunti di battaglia
+
+1. **Mai renderizzare Gazebo sulla dGPU NVIDIA** (driver 595 open, Blackwell mobile): leak ~3 GiB/min → 2 freeze totali del PC. Fix: render sulla **iGPU AMD** passando solo il suo `/dev/dri/renderD*` (mesa/radeonsi, 30 Hz, memoria piatta); la RTX resta per CUDA (Isaac ROS). Guardia permanente: `--memory=10g` sul container.
+2. Diagnosi con **memory-cap cgroup**: `docker update --memory` trasforma un freeze di sistema in un OOM contenuto e loggato (`CONSTRAINT_MEMCG` nel journal) — tecnica riusabile per qualunque leak sospetto.
+3. **PX4 v1.18: `NAV_DLL_ACT=2` di default** — uccidere uno script MAVSDK a metà volo = datalink loss = RTL automatico. Nei test harness va messo a 0 (in produzione NO).
+4. Stato **OFFBOARD orfano**: se il controller muore senza `offboard.stop()`, PX4 resta in OFFBOARD senza segnale e **rifiuta l'arming** ("No offboard signal"). Sempre `try/finally` con stop+land nei controller.
+5. `docker attach` con pipe chiude lo stdin del container a EOF → la shell pxh interpreta EOF come **shutdown di PX4**. Mai comandare la console via pipe; parametri via MAVSDK.
+6. **Compensazione d'assetto obbligatoria** per camera rigida nadir: a 10 m di quota, 15° di pitch = ~2,7 m di offset apparente del target. Senza compensazione il controller insegue il proprio tilt (ciclo limite osservato). Fix: ruotare il vettore camera→NED col **quaternione completo**, non solo yaw.
+7. `isaac_ros_apriltag` (cuAprilTag su RTX) dà la **posa metrica 3D** del tag via PnP — niente più pixel→angoli→metri come in M5; il contratto percezione→guida diventa direttamente metrico.
+8. Frame Gazebo **ENU** (x Est, y Nord) vs PX4 **NED**: le coordinate di spawn vanno scambiate. Risultato finale: touchdown a **6 cm** dal centro del pad in baylands.

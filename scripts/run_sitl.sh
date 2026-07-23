@@ -42,6 +42,22 @@ ARGS=(
   -e "PX4_GZ_WORLD=${WORLD}"
 )
 
+# Sensor rendering on the AMD iGPU (mesa/radeonsi) via its DRI render node.
+# Do NOT render Gazebo on the NVIDIA dGPU: driver 595 open-module leaks
+# ~3 GiB/min of host RAM per rendered frame stream (froze the machine twice,
+# 2026-07-23) — the dGPU stays free for CUDA work (Isaac ROS) instead.
+AMD_PCI="$(lspci -D 2>/dev/null | awk '/VGA|Display/ && /AMD|ATI/ {print $1; exit}')"
+if [[ -n "${AMD_PCI}" && -e "/dev/dri/by-path/pci-${AMD_PCI}-render" ]]; then
+  RENDER_NODE="$(readlink -f "/dev/dri/by-path/pci-${AMD_PCI}-render")"
+  ARGS+=( --device "${RENDER_NODE}" )
+  echo "[run_sitl] Gazebo rendering on AMD iGPU (${RENDER_NODE})"
+else
+  echo "[run_sitl] no AMD render node found — Gazebo will use software rendering"
+fi
+
+# Hard memory cap: if a renderer ever leaks again, the container dies, not the host.
+ARGS+=( --memory=10g --memory-swap=10g )
+
 if [[ "${HEADLESS:-0}" != "1" && -n "${DISPLAY:-}" ]]; then
   # Gazebo GUI on the host X server
   xhost +local:docker >/dev/null 2>&1 || true

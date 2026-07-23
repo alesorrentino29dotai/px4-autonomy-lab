@@ -1,0 +1,46 @@
+# ros_gz_bridge config template — baylands and x500_mono_cam_down_0 substituted by
+# run_ros2_bridge.sh. Bridges whatever camera the current vehicle has:
+# topics that don't exist on the gz side simply stay idle.
+
+# mono downward camera (x500_mono_cam_down) -> /camera/*
+- gz_topic_name: /world/baylands/model/x500_mono_cam_down_0/link/camera_link/sensor/camera/image
+  ros_topic_name: /camera/image
+  gz_type_name: gz.msgs.Image
+  ros_type_name: sensor_msgs/msg/Image
+  direction: GZ_TO_ROS
+- gz_topic_name: /world/baylands/model/x500_mono_cam_down_0/link/camera_link/sensor/camera/camera_info
+  ros_topic_name: /camera/camera_info
+  gz_type_name: gz.msgs.CameraInfo
+  ros_type_name: sensor_msgs/msg/CameraInfo
+  direction: GZ_TO_ROS
+
+# OakD rgbd camera (x500_depth, patched to rgbd_camera) -> /depth_camera/*
+- gz_topic_name: /depth_camera/image
+  ros_topic_name: /depth_camera/image
+  gz_type_name: gz.msgs.Image
+  ros_type_name: sensor_msgs/msg/Image
+  direction: GZ_TO_ROS
+- gz_topic_name: /depth_camera/depth_image
+  ros_topic_name: /depth_camera/depth_image
+  gz_type_name: gz.msgs.Image
+  ros_type_name: sensor_msgs/msg/Image
+  direction: GZ_TO_ROS
+- gz_topic_name: /depth_camera/camera_info
+  ros_topic_name: /depth_camera/camera_info
+  gz_type_name: gz.msgs.CameraInfo
+  ros_type_name: sensor_msgs/msg/CameraInfo
+  direction: GZ_TO_ROS
+
+# IMU of the vehicle (for VIO experiments) -> /imu
+- gz_topic_name: /world/baylands/model/x500_mono_cam_down_0/link/base_link/sensor/imu_sensor/imu
+  ros_topic_name: /imu
+  gz_type_name: gz.msgs.IMU
+  ros_type_name: sensor_msgs/msg/Imu
+  direction: GZ_TO_ROS
+
+# sim clock
+- gz_topic_name: /clock
+  ros_topic_name: /clock
+  gz_type_name: gz.msgs.Clock
+  ros_type_name: rosgraph_msgs/msg/Clock
+  direction: GZ_TO_ROS
