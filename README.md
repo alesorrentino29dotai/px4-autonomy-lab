@@ -40,7 +40,7 @@ Full write-up in [docs/M5_PRECISION_LANDING.md](docs/M5_PRECISION_LANDING.md).*
 | M3 | Waypoint mission + failsafe testing (battery low, datalink loss) | ✅ done |
 | M4 | Offboard control: velocity-setpoint square & circle | ✅ done |
 | M5 | **Precision landing on ArUco marker** (OpenCV + offboard descent) | ✅ done |
-| M6 | M2 ported to MAVSDK C++ | ⏳ stretch |
+| M6 | M2 ported to MAVSDK C++ | ✅ done |
 
 ## Repository layout
 

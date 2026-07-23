@@ -64,3 +64,11 @@
 6. Endgame: sotto 1 m il marker esce dal FOV → handover a `action.land()`. Su hardware reale: marker annidato grande+piccolo per coprire tutte le quote.
 7. Marker perso >1 s → hold, mai scendere alla cieca. Risultato in SITL: errore di touchdown **2–3 cm** partendo da 5 m di offset a 8 m di quota.
 8. Alternativa "di produzione": mandare `LANDING_TARGET` al modulo precision-landing nativo di PX4 (parametri `PLD_*`), che gestisce search pattern e failsafe internamente.
+
+## M6 — MAVSDK C++
+
+1. MAVSDK C++ distribuito come `.deb` prebuilt: senza sudo si estrae con `dpkg -x` in un prefix locale e si compila con `CMAKE_PREFIX_PATH` + RPATH — i symlink `libmavsdk.so.3` vanno creati a mano (li farebbe ldconfig).
+2. API C++ v3: `Mavsdk` vuole una `Configuration{ComponentType::GroundStation}` esplicita; `first_autopilot(timeout)` sostituisce la vecchia danza di discovery.
+3. Python è async-first (await/generatori), il C++ offre chiamate bloccanti + subscription a callback: stesso protocollo MAVLink sotto, diversa ergonomia.
+4. `telemetry.health_all_ok()` riassume in una chiamata il gate EKF che in Python richiedeva l'iterazione dello stream health.
+5. Gli enum result (`Action::Result`) stampabili con operator<< danno diagnostica arm/takeoff equivalente agli `ActionError` Python.

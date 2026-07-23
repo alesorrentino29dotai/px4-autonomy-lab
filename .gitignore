@@ -25,3 +25,6 @@ logs/
 .idea/
 *.swp
 .DS_Store
+
+# vendored MAVSDK C++ (fetched by cpp/get_mavsdk.sh)
+cpp/third_party/
