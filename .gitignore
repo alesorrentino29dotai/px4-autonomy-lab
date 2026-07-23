@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# C++ / CMake
+build/
+cmake-build-*/
+*.o
+*.a
+*.so
+compile_commands.json
+
+# Logs & artifacts
+*.csv
+logs/
+*.ulg
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
