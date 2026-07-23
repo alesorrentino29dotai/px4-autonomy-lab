@@ -32,3 +32,14 @@
 4. Lo stato aria/terra viene da **EXTENDED_SYS_STATE** (`MAV_LANDED_STATE`): è così che si sa quando il touchdown è avvenuto davvero.
 5. Dopo il land PX4 **disarma automaticamente** (COM_DISARM_LAND, default ~2s a terra) — aspettare `armed == False` è il segnale di fine volo affidabile.
 6. Pattern: comandi fire-and-forget + attese basate su telemetria con `asyncio.wait_for` e timeout espliciti — mai fidarsi solo dell'ACK.
+
+## M3 — Missione waypoint & failsafe
+
+1. L'upload missione è un **microservizio MAVLink** (handshake MISSION_COUNT → MISSION_REQUEST_INT → MISSION_ITEM_INT → MISSION_ACK), non un singolo messaggio; lat/lon viaggiano come interi ×1e7.
+2. I progressi arrivano da **MISSION_CURRENT / MISSION_ITEM_REACHED**; il raggio di accettazione dei WP è `NAV_ACC_RAD`.
+3. **RTL** è governato da `RTL_RETURN_ALT` (quota di rientro), `RTL_DESCEND_ALT` e `RTL_LAND_DELAY`; con `set_return_to_launch_after_mission` la missione termina in AUTO.RTL automaticamente.
+4. Soglie batteria (default): `BAT_LOW_THR` 15% → warning; `BAT_CRIT_THR` 7% → azione `COM_LOW_BAT_ACT` (default 3 = return-or-land); `BAT_EMERGEN_THR` 5% → **LAND immediato**.
+5. Osservato in SITL: con drain rapidissimo (60 s) si passa da HOLD direttamente a LAND all'emergency — le fasi critical/emergency possono collassare se la batteria crolla più veloce dell'isteresi del commander. `SIM_BAT_MIN_PCT` (default 50) impedisce il drain completo in sim.
+6. **Datalink loss**: dichiarato dopo `COM_DL_LOSS_T` secondi senza HEARTBEAT da una GCS; azione = `NAV_DLL_ACT` (0 disabilitato di default!, 2 = Return). Verificato: stop heartbeat → dopo ~10 s AUTO.RTL → atterraggio → disarm.
+7. Il failsafe si osserva "da fuori" solo passivamente: un listener che NON manda heartbeat non resetta il timer del datalink — distinzione fondamentale tra ascoltare e essere una GCS.
+8. Il flight mode PX4 viaggia in `HEARTBEAT.custom_mode`: main mode nel byte 2, sub-mode nel byte 3 (AUTO=4, sub RTL=5, LAND=6).
