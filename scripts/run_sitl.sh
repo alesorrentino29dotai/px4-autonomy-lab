@@ -32,10 +32,12 @@ MODEL="${MODEL:-gz_x500}"
 WORLD="${WORLD:-default}"
 NAME="${NAME:-px4-sitl}"
 IMAGE="px4io/px4-sitl-gazebo:${TAG}"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 ARGS=(
   --rm -it --name "$NAME"
   --network host       # MAVLink on host localhost: 14550 (QGC), 14540 (MAVSDK)
+  -v "${REPO_DIR}:/lab" # repo visible in-container (M5 CV node runs from here)
   -e "PX4_SIM_MODEL=${MODEL}"
   -e "PX4_GZ_WORLD=${WORLD}"
 )

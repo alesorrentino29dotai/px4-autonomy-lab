@@ -5,6 +5,12 @@ with Gazebo (running in Docker), MAVLink/MAVSDK ground-side scripting in Python,
 control, and — as the capstone — **vision-based precision landing on an ArUco marker**
 (the "drone-in-a-box" use case).
 
+![Precision landing demo](docs/media/precision_landing.gif)
+
+*The capstone demo: OpenCV tracks the pad marker from the downward camera while an
+Offboard velocity controller flies the descent — touchdown **2–3 cm** from center.
+Full write-up in [docs/M5_PRECISION_LANDING.md](docs/M5_PRECISION_LANDING.md).*
+
 > Everything here runs in simulation and is fully reproducible: no drone hardware required.
 
 ## Goals
@@ -33,7 +39,7 @@ control, and — as the capstone — **vision-based precision landing on an ArUc
 | M2 | Arm / takeoff / hold / land with error handling | ✅ done |
 | M3 | Waypoint mission + failsafe testing (battery low, datalink loss) | ✅ done |
 | M4 | Offboard control: velocity-setpoint square & circle | ✅ done |
-| M5 | **Precision landing on ArUco marker** (OpenCV + offboard descent) | ⏳ planned |
+| M5 | **Precision landing on ArUco marker** (OpenCV + offboard descent) | ✅ done |
 | M6 | M2 ported to MAVSDK C++ | ⏳ stretch |
 
 ## Repository layout

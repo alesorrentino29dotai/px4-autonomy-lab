@@ -53,3 +53,14 @@
 5. Se il flusso di setpoint si interrompe scatta l'**offboard-loss failsafe** (`COM_OF_LOSS_T`, azione `COM_OBL_RC_ACT`) — stessa filosofia del datalink loss di M3.
 6. Traiettorie "a velocità": semplici e robuste ma in anello aperto sulla posizione — la deriva si accumula (il quadrato non si richiude perfettamente). Per M5 la correzione arriverà in anello chiuso dalla visione.
 7. Lo yaw è comandabile indipendentemente dalla direzione di volo (nose sul tangente nel cerchio) — un quadricottero è olonomo nel piano.
+
+## M5 — Precision landing su ArUco
+
+1. Architettura a due nodi come su un drone vero: **percezione vicino al sensore** (nodo CV nel container, via gz-transport), **guida altrove** (MAVSDK sull'host), contratto minimale in mezzo (JSON/UDP con angoli, non pixel).
+2. **Angoli, non pixel**, attraversano l'interfaccia: `ang = atan((u-cx)/fx)`; moltiplicati per la quota danno l'offset metrico a qualunque risoluzione — stesso principio del messaggio MAVLink `LANDING_TARGET`.
+3. Il marker PX4 del mondo `aruco` è **DICT_4X4_50 id 0**, 0.5 m; il dizionario si può auto-scoprire provando i più comuni sul primo frame.
+4. Mapping camera downward (pitch +90°): image-right → est, image-down → −nord (a yaw 0). Sbagliare un segno = divergenza immediata: verificarlo è la prima cosa da fare.
+5. Legge di controllo: P laterale sull'offset metrico (`Kp=0.6`), e **discesa solo se centrato** (soglia ∝ quota) — l'imbuto si auto-corregge, ogni deriva mette in pausa la discesa.
+6. Endgame: sotto 1 m il marker esce dal FOV → handover a `action.land()`. Su hardware reale: marker annidato grande+piccolo per coprire tutte le quote.
+7. Marker perso >1 s → hold, mai scendere alla cieca. Risultato in SITL: errore di touchdown **2–3 cm** partendo da 5 m di offset a 8 m di quota.
+8. Alternativa "di produzione": mandare `LANDING_TARGET` al modulo precision-landing nativo di PX4 (parametri `PLD_*`), che gestisce search pattern e failsafe internamente.
