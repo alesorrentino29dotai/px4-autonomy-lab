@@ -28,3 +28,7 @@ logs/
 
 # vendored MAVSDK C++ (fetched by cpp/get_mavsdk.sh)
 cpp/third_party/
+
+# demo video raw frames
+.chase_frames/
+.onboard_frames/

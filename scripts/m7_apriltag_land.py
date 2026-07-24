@@ -113,7 +113,9 @@ async def main() -> int:
             print("✓ Connected to PX4")
             break
     async for h in drone.telemetry.health():
-        if h.is_global_position_ok and h.is_home_position_ok:
+        # home is only (re)set at arming — waiting for it before arming can
+        # deadlock after a previous disarm; global fix + armable is enough
+        if h.is_global_position_ok and h.is_armable:
             break
 
     link = TagLink()

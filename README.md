@@ -41,6 +41,17 @@ Full write-up in [docs/M5_PRECISION_LANDING.md](docs/M5_PRECISION_LANDING.md).*
 | M4 | Offboard control: velocity-setpoint square & circle | ✅ done |
 | M5 | **Precision landing on ArUco marker** (OpenCV + offboard descent) | ✅ done |
 | M6 | M2 ported to MAVSDK C++ | ✅ done |
+| M7 | **GPU perception (Isaac ROS)**: AprilTag landing in a photoreal world | ✅ demo 1 done |
+
+## M7 — GPU-accelerated precision landing (Isaac ROS)
+
+![Isaac ROS AprilTag landing](docs/media/m7_apriltag_landing.gif)
+
+*Left: chase view in the baylands world. Right: onboard camera. The AprilTag is
+detected on the RTX GPU by `isaac_ros_apriltag` (CUDA/NITROS) from the camera
+bridged out of Gazebo via ros_gz; a MAVSDK controller with full-quaternion
+attitude compensation flies the descent. Touchdown **3–10 cm** from pad center.
+Full video: [m7_apriltag_landing.mp4](docs/media/m7_apriltag_landing.mp4).*
 
 ## Repository layout
 

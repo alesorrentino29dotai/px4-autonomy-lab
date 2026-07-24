@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- Static "film crew" camera for demo videos: wide shot framing the whole
+     flight volume (takeoff at origin, pad at gz (5,3), climb to ~12 m).
+     Frames are saved to disk by gz-sensors itself (save enabled) at 24 fps,
+     1920x1080 — assembled into a video afterwards with ffmpeg. -->
+<sdf version="1.8">
+  <model name="chase_cam">
+    <static>true</static>
+    <pose>9.5 -1.5 3.5 0 0.078 2.356</pose>
+    <link name="link">
+      <sensor name="filmcam" type="camera">
+        <topic>chase_cam</topic>
+        <update_rate>10</update_rate>
+        <camera>
+          <horizontal_fov>1.5</horizontal_fov>
+          <image><width>1280</width><height>720</height></image>
+          <clip><near>0.1</near><far>500</far></clip>
+          <save enabled="true">
+            <path>/lab/.chase_frames</path>
+          </save>
+        </camera>
+        <always_on>1</always_on>
+      </sensor>
+    </link>
+  </model>
+</sdf>
